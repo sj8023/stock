@@ -1,0 +1,49 @@
+use strict;
+use Spreadsheet::XLSX;
+use Unicode::UTF8simple;
+use DateTime;
+my ($col1,$col2,%hash1,%hash2,@tabname,$num,$num1);
+my $dt=DateTime->from_epoch(epoch=>time);
+my $duration=DateTime::Duration->new(days=>-1);
+my $dt1=$dt+$duration;
+my $date=$dt->month.'-'.$dt->day.'-'.substr($dt->year,2,2);
+my $date1=$dt1->month.'-'.$dt1->day.'-'.substr($dt1->year,2,2);
+my $uref =new Unicode::UTF8simple;
+my $file='C:\Users\Victor\Desktop\需做数据迁移的数据表数据量巡检日报-20150713.xlsx';
+$file=$uref->fromUTF8('gb2312',$file);
+my $workbook  = Spreadsheet::XLSX -> new ($file);
+my $worksheet = $workbook->worksheet('数据填写');
+my ( $row_min, $row_max ) = $worksheet->row_range();
+my ( $col_min, $col_max ) = $worksheet->col_range();
+for my $col ( $col_min .. $col_max ){
+    my $cell = $worksheet-> get_cell( 0, $col );
+    next unless $cell;
+    $col1=$col if ($cell->value() eq $date1);
+    $col2=$col if ($cell->value() eq $date);
+}
+for my $row (1..$row_max){
+    my $cell = $worksheet->get_cell($row,1);
+    my $cell1= $worksheet->get_cell($row,$col1);
+    my $cell2= $worksheet->get_cell($row,$col2);
+    $hash1{$cell->value()}=$cell1->value();
+    $hash2{$cell->value()}=$cell2->value();
+    push @tabname,$cell->value();
+}
+print $uref->fromUTF8('gb2312',"（1）需做数据迁移的数据表当前数据量较大的依次为（不计日志表）：\n");
+my $str2=$uref->fromUTF8('gb2312','约');
+my $str3=$uref->fromUTF8('gb2312','万');
+my $str4=$uref->fromUTF8('gb2312','、');
+foreach my $key(sort {$hash2{$b}<=>$hash2{$a}} keys %hash2){
+       printf "%s(%s%d%s)%s",$key,$str2,$hash2{$key}/10000,$str3,$str4;
+       $num++;
+       last if $num == 11;   
+}
+print "\n";
+print $uref->fromUTF8('gb2312',"（2）务开通定单调度关键数据表数据量增长趋势：\n");
+foreach(@tabname){
+    if($hash1{$_} < $hash2{$_}){
+        print $_.$str4;
+        $num1++;
+    }
+}
+print $uref->fromUTF8('gb2312',"这$num1张表相对昨日有所增长。\n")
