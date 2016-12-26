@@ -1,3 +1,4 @@
+#!/usr/bin/perl -w
 use strict;
 use warnings;
 use Carp;
@@ -6,7 +7,7 @@ use Getopt::Std;
 
 use constant MAXNUMBER => 500;
 use constant LINE => 30;
-use constant PROXY => 'http://10.40.14.56:80';
+use constant PROXY => 'http://192.168.180.166';
 $| = 1;
 
 my %opts;
@@ -54,19 +55,17 @@ sub Stocks{
                 }
         }
 }
-
 sub GetStockValue{
         croak "Length > MAXNUMBER" if @_>MAXNUMBER;
        
         my $ua = LWP::UserAgent->new();
-        #~ $ua->proxy('http', PROXY);
+       
        
         my $res = $ua->get("http://hq.sinajs.cn/list=".join(',',@_));
         if($res->is_success){
                 return $res->content;
         }
 }
-
 sub DrawMarket{
         my ($stockcode,$value) = @_;
         my @list = split /,/, $value;
@@ -77,24 +76,20 @@ sub DrawMarket{
         write;
        
         format MARKET_TOP =
-
 code     name          current (   +/-       %)    open   close          low(ch)        high(ch)  S(W)    $(W) [             buy <=>   sell          ]
 ======================================================================================================================================================
 .
-
         format MARKET =
 @<<<<<<< @<<<<<<<<<<<< @###.## (@##.## @##.##%) @###.## @###.## @###.## (@##.##) @###.## (@#.##) @#### @###### [@########@###.## <=>@###.##@######## ]
 $stockcode,$list[0],$list[3],$list[3]-$list[2],$list[2]>0?($list[3]-$list[2])*100/$list[2]:0,$list[1],$list[2],$list[5],$list[5]-$list[2],$list[4],$list[4]-$list[2],$list[8]/10000,$list[9]/10000,$list[10],$list[11],$list[21],$list[20],
 .
 }
-
 sub DrawStock{
         my ($stockcode,$value) = @_;
         my @list = split /,/, $value;
        
         $~ = "STOCK";
         write;
-
         format STOCK =
 =====================================================================
 @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<@>>>>>>>>>>>>>>>>>>
@@ -114,6 +109,5 @@ S(W):    @#####                 |------------------------------------
 $list[8]/10000,
 $(W):    @#####                 |@########                  @########
 $list[9]/10000,$list[10]+$list[12]+$list[14]+$list[16]+$list[18],$list[20]+$list[22]+$list[24]+$list[26]+$list[28],
-
 .
 }
