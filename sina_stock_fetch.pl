@@ -4,10 +4,10 @@ use warnings;
 use Carp;
 use LWP::UserAgent;
 use Getopt::Std;
-
+use Encode;
 use constant MAXNUMBER => 500;
 use constant LINE => 30;
-use constant PROXY => 'http://192.168.180.166';
+use constant PROXY => 'http://192.168.178.241';
 $| = 1;
 
 my %opts;
@@ -87,7 +87,7 @@ $stockcode,$list[0],$list[3],$list[3]-$list[2],$list[2]>0?($list[3]-$list[2])*10
 sub DrawStock{
         my ($stockcode,$value) = @_;
         my @list = split /,/, $value;
-       
+        $list[0] = encode ("utf8", decode ("gb2312", $list[0]));
         $~ = "STOCK";
         write;
         format STOCK =
