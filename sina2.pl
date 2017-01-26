@@ -12,7 +12,7 @@ exit;
 sub getstock {
 my ($stock) = @_;
 my $ua = LWP::UserAgent->new();
-my $response = $ua -> get("http://money.finance.sina.com.cn/corp/go.perl/vMS_MarketHistory/stockid/$stock.phtml");
+my $response = $ua -> get("http://money.finance.sina.com.cn/corp/go.php/vMS_MarketHistory/stockid/$stock.phtml");
 if($response -> is_success){
 print $response -> content;
 }
